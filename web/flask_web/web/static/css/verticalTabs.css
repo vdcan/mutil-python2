@@ -1,0 +1,68 @@
+
+* {
+   box-sizing: border-box
+}
+.tab {
+   float: left;
+   #border: 1px solid blue;
+   #background-color: black;
+   width: 150px;
+  #height: 100%;
+  
+  min-height:  calc(100% - 60px);
+  border-right: 2px solid;
+}
+.tab button {
+   display: block;
+   background-color: inherit;
+   color: #008b10;
+   padding: 22px 16px;
+   width: 100%;
+   border: none;
+   outline: none;
+   text-align: left;
+   cursor: pointer;
+   transition: 0.3s;
+   font-size: 17px;
+}
+.tab button:hover {
+   background-color: green;
+   color: black;
+}
+
+.tab button.active {  
+   background-color: #008b10 ;
+   color: black;
+}
+.vTab {
+   float: left;  
+   width: calc(100% - 150px);;
+   border-left: none;
+   min-height:  calc(100% - 60px); 
+   display:none;
+}
+
+.vTabActive {
+   float: left;  
+    width: calc(100% - 150px);;  
+   height:100%;
+   #  calc(100vh - 160px);
+}
+
+html {
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;overflow: hidden;
+}
+
+body {
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+}
+
+
+.topTitleBar{
+   width: 100%;;
+   border-bottom: 2px solid #008b10;
+ }

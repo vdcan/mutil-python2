@@ -1,0 +1,40 @@
+<!-- This file is part of https://github.com/jainamoswal/Flask-Example. -->
+<!-- Usage covered in IDC lICENSE -->
+<!-- Jainam Oswal. jainam.me -->
+<html>
+    <head>
+        <title>{{ title }}</title>
+
+        
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.tmpl.min.js"></script>
+<script src="/js/jquery.tmplPlus.min.js"></script>
+<link href="/css/style.css" rel="stylesheet" /> 
+<link href="/css/verticalTabs.css" rel="stylesheet" /> 
+<script src="/js/verticalTabs.js"></script>
+    </head>
+    <body>
+        <h1>Hello {{ username }}</h1>
+    </body>
+
+    <script>var gMenuData= [{"id":"kckum","title":"layout for group for Demo home","url":"/page/kckum.html"},
+        ]
+
+        $(function(){
+    $("#template_tab").tmpl({ Table: gMenuData }).appendTo("#tab");
+
+        })
+        </script>
+                <script id="template_tab" type="text/x-jquery-tmpl">{{each(i,v) Table}}{{if i == 0}} <button class="lTab active" onclick="switchTab(event, '{{= v.id}}')" >{{= v.title}}</button>{{else}} <button class="lTab" onclick="switchTab(event, '{{= v.id}}')">{{= v.title}}</button>{{/if}} 	{{/each}} </script>
+                <script id="template_context" type="text/x-jquery-tmpl"> 		
+                    		{{each(i,v) Table}} 			 		
+                            		{{if i == 0}} 			
+                                    	<div id="{{= v.id}}" class="vTabActive"> 		 {{else}} 		 
+                                            		 				<div id="{{= v.id}}" class="vTab">{{/if}} 
+                                                                        <iframe id="Iframe{{= v.id}}" src="{{= v.url}}" style="width:100%;min-height:100vh;margin: 0px; overflow: hidden; border: none;"></iframe></div>{{/each}}</script>
+                                                                        <div
+                    id="tab" class="tab"></div><div id="context"></div>
+                </body>
+                
+
+</html>

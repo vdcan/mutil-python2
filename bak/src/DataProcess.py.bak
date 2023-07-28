@@ -1,0 +1,509 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2010-2013 Roger Light <roger@atchoo.org>
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Distribution License v1.0
+# which accompanies this distribution.
+#
+# The Eclipse Distribution License is available at
+#   http://www.eclipse.org/org/documents/edl-v10.php.
+#
+# Contributors:
+#    Roger Light - initial implementation
+# Copyright (c) 2010,2011 Roger Light <roger@atchoo.org>
+# All rights reserved.
+
+# This shows a simple example of an MQTT subscriber.
+
+import context  # Ensures paho is in PYTHONPATH
+
+import paho.mqtt.client as mqtt
+import redis
+import json
+import subprocess
+import os
+from string import Template
+import copy
+import datetime
+import logging
+
+import logging.handlers
+import os
+import my_config
+import taos
+import di
+conn = taos.connect(host=my_config.config["taos_host"],
+                    user=my_config.config["taos_user"], password=my_config.config["taos_pwd"])
+"""
+conn.execute("create database if not exists pytest")
+result = conn.query("show databases")
+num_of_fields = result.field_count
+for field in result.fields:
+    print(field)
+for row in result:
+    print(row)
+conn.execute("drop database pytest")
+"""
+
+handler = logging.handlers.WatchedFileHandler(
+    os.environ.get("LOGFILE", my_config.config["logPath"]))
+formatter = logging.Formatter(logging.BASIC_FORMAT)
+handler.setFormatter(formatter)
+root = logging.getLogger()
+root.setLevel(os.environ.get("LOGLEVEL", "DEBUG"))
+root.addHandler(handler)
+
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+REDIS = redis.Redis(
+    host=my_config.config["redis_host"], port=my_config.config["redis_port"])
+MaxRows = 200
+
+
+def on_connect(mqttc, obj, flags, rc):
+    logging.debug("rc: " + str(rc))
+
+
+def loadRangeToJson(key):
+    l = REDIS.lrange(key, 0, -1)
+    r = []
+
+    for d in l:
+        d = d.decode()
+        y = json.loads(d)
+        r.append(y)
+    # logging.debug(r);
+    return r
+
+
+def loadStringToJson(key):
+    l = REDIS.get(key)
+    if(l == None):
+        return{}
+    try:
+        l = l.decode("utf-8")
+    except:
+        logging.debug(key)
+    # logging.debug(l);
+    l = l.replace("'", '"')
+    # logging.debug(l);
+    r = json.loads(l)
+    # logging.debug(r);
+    return r
+
+
+def load_v_node_node_client_id(node_client_id):
+    key = "v_node_node_client_id:"+str(node_client_id)
+    # logging.debug(key);
+    v = loadRangeToJson(key)
+    if(len(v) >= 1):
+        return loadRangeToJson(key)[0]
+    else:
+        return {}
+
+
+def loadNodeLocationText(nlid):
+    key = "v_node_location_text:"+str(nlid)
+    # logging.debug(key);
+    return loadStringToJson(key)
+
+
+def loadFormula(nlid):
+    key = "formula:"+str(nlid)
+    # logging.debug(key);
+    return loadStringToJson(key)
+
+
+def loadNode(nlid):
+    key = "v_node:"+str(nlid)
+    # logging.debug(key);
+    return loadStringToJson(key)
+
+
+def loadValueRange(nlid):
+    key = "v_value_range:"+nlid
+    # logging.debug(key);
+    return loadStringToJson(key)
+
+
+def loadAlarmMethod(alarm_code):
+    key = "v_alarm_method:"+alarm_code
+    # logging.debug(key);
+    return loadRangeToJson(key)
+
+
+def loadNodeLocation(nlid):
+    key = "node_location:"+nlid
+    # logging.debug(key);
+    print(key)
+    return loadRangeToJson(key)[0]
+
+
+def setStatus(nlid, data):
+    key = "nlstatus:"+nlid
+    r = REDIS.keys(key)
+    # logging.debug(data);
+    if(len(r) > 0):
+        logging.debug("exits")
+        r = loadStringToJson(key)
+    else:
+        r = {}
+        logging.debug("not exits")
+
+    for i in data:
+        r[i["node_code"]+"_"+i["t"]] = i
+    # logging.debug(r);
+    REDIS.set(key, str(r))
+
+
+def processData(m, context):
+    m = m.split('/')
+    # data to json object
+    logging.debug(context)
+    # return;
+    j = json.loads(context)
+    d = []
+    nlid = ""
+    nlid = j["nlid"]
+
+    formula = loadFormula(nlid)
+
+    last_v = {}
+    valT = {}
+    for i, val in enumerate(j["Data"]["row"]):
+        if(j["node_code"]+"_"+val["t"] in formula):
+            f = formula[j["node_code"]+"_"+val["t"]]["formula"]
+            #logging.debug("forumla",f )      ;
+            # logging.debug(val);
+            form = Template(f)
+            msg = form.substitute(val)
+            #logging.debug("forumla msg>>>",msg )      ;
+            exec('val["v"] = ' + msg)
+            del formula[j["node_code"]+"_"+val["t"]]
+
+        val["node_code"] = j["node_code"]
+        val["sts"] = j["sts"]
+        val["nid"] = m[-1]
+        valT[val["t"]] = val["v"]
+        last_v = val
+        d.append(val)
+        try:
+            for k2 in formula:
+
+                f = formula[k2]  # ["formula"]
+                form = Template(f["formula"])
+                msg = form.substitute(valT)
+                #logging.debug("forumla msg>>>",msg )      ;
+                last_v2 = copy.copy(last_v)
+                exec('last_v2["v"] = ' + msg)
+                last_v2["node_code"] = f["node_code"]
+                last_v2["t"] = f["node_cmd_name"]
+                # logging.debug(last_v2);
+                d.append(last_v2)
+        except:
+            print("exception")
+
+    d = str(d)
+    d = d.replace("'", '"')
+    jdata = json.loads(d)
+    # create data string for redis
+
+    # logging.debug("jdata",jdata);
+    # return;
+    d = d.replace("[", "")
+    d = d.replace("]", "")
+    # use node location id as key
+    key = 'SensorData2:'+nlid  # m[-1]
+    #logging.debug(key, d)
+    # logging.debug(l);
+    # save all data as status for each nlid
+    setStatus(str(nlid), jdata)
+    # only keep latest MaxRows rows for eache data
+    pushToRedisAndTrim(key, d, MaxRows)
+    #REDIS.ltrim(key,0, MaxRows -1);
+    #logging.debug(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    alarmAndActionProcess(nlid)
+
+
+def pushToRedisAndTrim(key, d, MaxRows):
+    l = REDIS.lpush(key, d)
+    l = REDIS.llen(key)
+    if(l > MaxRows):
+        REDIS.ltrim(key, 0,  MaxRows)  # just keep last MaxRows
+
+
+def alarmAndActionProcess(nlid):
+    key = "nlstatus:"+nlid
+    status = loadStringToJson(key)
+    valueRange = loadValueRange(nlid)
+    #alarmMethod = loadRangeToJson("v_alarm_method:A");
+    #alarmCode = loadRangeToJson("v_alarm_method");
+    # logging.debug("status",status);
+    # logging.debug("valueRange",valueRange);
+    alarmArray = []
+    actionArray = []
+    for vr in valueRange:
+        eflag = 0
+        node_code = ""
+        value_name = ""
+        type = ""
+        for vd in valueRange[vr]["data"]:
+            code = vd["node_code"]+"_" + vd["value_name"]
+            node_code = vd["node_code"]
+            value_name = vd["value_name"]
+            parms = vd["parms"]
+            type = vd["type"]
+            # logging.debug(type)
+            if(code in status):
+                if(float(status[code]["v"]) >= float(vd["from_value"]) and float(status[code]["v"]) < float(vd["to_value"])):
+                    eflag = 1
+                    #logging.debug(float(status[code]["v"]) , float(vd["from_value"]) ,float(vd["to_value"]), vd["alarm_code"])
+                else:
+                    eflag = 0
+
+        if(eflag == 1):
+            # logging.debug(type)
+            if(type.startswith("action")):
+                actionArray.append(
+                    {"alarm_code": valueRange[vr]["alarm_code"], "node_code": node_code, "value_name": value_name, "parms": parms})
+            else:
+                alarmArray.append(
+                    {"alarm_code": valueRange[vr]["alarm_code"], "node_code": node_code, "value_name": value_name, "parms": parms})
+            # logging.debug(valueRange[vr]["alarm_code"])
+            # logging.debug(code)
+            # logging.debug("EEEEEEEEEEEEEEEEEEEEEEEEEEE");
+    # logging.debug(alarmArray);
+    # logging.debug(actionArray);
+    sendAlarm(nlid, alarmArray)
+    sendAction(nlid, actionArray)
+
+
+def sendAction(nlid, actionArray):
+    next_second = 20
+    nn = loadNode(nlid)
+    logging.debug(actionArray)
+    for aa in actionArray:
+        node_code = aa["node_code"]
+        alarm_code = aa["alarm_code"]
+        topic = 's/lora/'+nn[node_code]["gw_node_client_id"] + '/cmd'
+        random_id = "123"
+        # 's/4/l3c71bf799880/4/533/node/r/RunCmd,1,RGB,0;0;0;55'
+        #context ='s/4/'+nn[node_code]["node_client_id"] +'/4/'+ random_id +'/node/r/RunCmd,'+alarm_code+' '+ aa["parms"]
+        context = 's/4/'+nn[node_code]["node_client_id"] + '/4/' + random_id + \
+            '/node/r/RunCmd,' + \
+            alarm_code[3:4]+','+alarm_code[0:3] + \
+            ',' + aa["parms"].replace(",", ";")
+        messageLogKey = "Action_"+str(nlid)+"_"+alarm_code
+        r = REDIS.keys(messageLogKey)
+        if(len(r) == 0):
+            sendMqttMessage(topic, context)
+            REDIS.setex(messageLogKey, next_second, topic)
+        else:
+            logging.debug(messageLogKey + " exists, pls waite for " +
+                          str(next_second)+" senconds")
+
+
+def sendAlarm(nlid, alarmArray):
+    next_second = 20
+    key = ""
+    textArray = loadNodeLocationText(nlid)
+    mtext = ""
+    messageLogKey = "Message_"+nlid+"_"
+    alarmMethod = {}
+    for aa in alarmArray:
+        alarm_code = aa["alarm_code"]
+        alarmMethod = loadAlarmMethod(alarm_code)
+        text = aa["node_code"]+"_"+aa["value_name"]
+        text = textArray[text]["cmd_text"]
+        mtext = mtext+", "+text + " "+alarmMethod[0]["alarm_name"]
+        messageLogKey = messageLogKey + \
+            aa["node_code"]+"_"+aa["value_name"]+"_"+alarm_code
+
+    r = REDIS.keys(messageLogKey)
+    if(len(r) > 0):
+        logging.debug(messageLogKey + " exists, pls waite for " +
+                      str(next_second)+" senconds")
+        return
+    REDIS.setex(messageLogKey, next_second, mtext)
+    nl = loadNodeLocation(nlid)
+    mtext = nl["location_name"] + mtext
+    for am in alarmMethod:
+        d = {"text": mtext}
+        logging.debug(am)
+        form = Template(am["text_template"])
+        msg = form.substitute(d)
+        logging.debug(msg)
+        logging.debug(nl)
+        sendMqttMessage("s/Alarm"+am["method_code"]+"/"+nl["ancestor"], msg)
+    # if(len(r)>0):
+
+    #    if
+
+# loadValueRange("2");
+
+
+def sendMqttMessage(topic, msg):
+    topic = topic.lower()
+    mqttc.publish(topic, msg)
+    #logging.debug(topic, msg);
+
+
+def on_message(mqttc, obj, msg):
+    m = msg.topic
+    #m= m.replace("s/SensorData2", "");
+    ms = msg.payload.decode("utf-8")
+    ms = ms.replace("'", "\"")
+    ms = ms.replace(",,", ",")
+    # logging.debug(m,ms)
+    topic, msg = convertData(m, ms)
+    #logging.debug(topic, msg);
+    if(topic != ""):
+        sendMqttMessage(topic, msg)
+        processData(topic, msg)
+
+
+def on_publish(mqttc, obj, mid):
+    #logging.debug("mid: " + str(mid))
+    m = mid
+
+
+def on_subscribe(mqttc, obj, mid, granted_qos):
+    logging.debug("Subscribed: " + str(mid) + " " + str(granted_qos))
+
+
+def on_log(mqttc, obj, level, string):
+    logging.debug(string)
+
+
+# If you want to use a specific client id, use
+# mqttc = mqtt.Client("client-id")
+# but note that the client id must be unique on the broker. Leaving the client
+# id parameter empty will generate a random id for you.
+mqttc = mqtt.Client()
+
+
+def doMQTT():
+    mqttc.on_message = on_message
+    mqttc.on_connect = on_connect
+    mqttc.on_publish = on_publish
+    mqttc.on_subscribe = on_subscribe
+    # Uncomment to enable debug messages
+    # mqttc.on_log = on_log
+    mqttc.connect(my_config.config["mqtt_host"], 1883, 60)
+    mqttc.subscribe("p/loraM/#", 0)
+
+    mqttc.loop_forever()
+
+
+def convertData(ftopic, ftext):
+    tem = '{"t":"$a0","v":"$a2","mid":"$p4","no":"$a1"},'
+    sts = int(datetime.datetime.utcnow().timestamp())
+    # logging.debug(datetime.datetime.fromtimestamp(sts))
+
+    # removed for testing
+    #sts = sts -sts%(60*5)
+    # logging.debug(datetime.datetime.fromtimestamp(sts))
+    sts = datetime.datetime.fromtimestamp(sts)
+    tem2 = '{"Data":{"row":[$text]},"node_code":"$node_code","nlid":"$nlid","sts":"$sts"}'
+    fa = ftext.split("/")
+    node_code_id = fa[2]
+    node_code = 'n1'  # fa[6];
+    aa = fa[7]
+    fb = {}
+    c = 0
+    msg = ""
+    for i in fa:
+        fb["p"+str(c)] = i
+        c = c+1
+    #logging.debug (fb);
+    aa = aa.split(";")
+    for i in aa:
+        bb = i
+        bb = bb.replace(":", ",")
+        bb = bb.replace("[", "")
+        bb = bb.replace("]", "")
+        cc = bb.split(",")
+        c = 0
+        for j in cc:
+            fb["a"+str(c)] = j
+            c = c+1
+        #print(fb)
+        form = Template(tem)
+        try:
+            msg = msg + form.substitute(fb)
+        except:
+            logging.debug("except:" )
+        # logging.debug(msg)
+    fb["text"] = msg
+    topic = ""
+    node_code_id = node_code_id.upper()
+    print(node_code_id)
+    nn = load_v_node_node_client_id(node_code_id)
+    # logging.debug(type(nn))
+    # try:
+    #	nn= json.loads(nn);
+    # except:
+    #	logging.debug("except:",str(nn));
+
+    # logging.debug(nn,node_code_id)
+    print(nn)
+    if ('node_location_id' in nn):  # (nn, 'node_location_id'):
+        logging.debug(nn["node_location_id"])
+        fb["nlid"] = nn["node_location_id"]
+        if("node_code" in nn):
+            fb["node_code"] = nn["node_code"]
+        else:
+            fb["node_code"] = 'nn'  # node_code;#nn["node_code"]
+        fb["sts"] = sts
+        ancestor = nn["ancestor"]
+        form = Template(tem2)
+        msg = form.substitute(fb)
+        msg = msg.replace(",]", "]")
+        topic = "s/SensorData2/"+ancestor+"/"+node_code_id
+        key = "SensorData:"+str(fb["nlid"])+":"+node_code_id
+        #l = REDIS.lpush(key ,msg)
+        SaveSensorDataToTaos(fb["nlid"], fb["node_code"],
+                             node_code_id, str(sts), msg)
+        print(key, msg)
+        pushToRedisAndTrim(key, msg, 30)
+    else:
+        logging.debug("can't find : " + node_code_id)
+    # logging.debug(topic,msg)
+    return (topic, msg)
+
+
+def InitTaos():
+    c1 = conn.cursor()
+    # Create a database
+    c1.execute('create database if not exists db  precision "us"')
+    c1.execute('use db')
+    # Create a table
+    c1.execute('create stable if not exists SensorData (ts timestamp, node_code BINARY(100), client_id BINARY(100), sts BINARY(20), data BINARY(4096)) tags(nlid BINARY(10))')
+
+
+def SaveSensorDataToTaos(nlid, node_code, client_id, sts, data):
+    #print(nlid, node_code, client_id, sts, data);
+    InitTaos()
+    c1 = conn.cursor()
+    c1.execute('use db;\r\n')
+    nlid = str(nlid)
+    #s= "CREATE TABLE  IF NOT EXISTS SensorData%s  USING SensorData TAGS ('%s');\r\n" %( nlid, nlid )
+
+    s = "CREATE TABLE  IF NOT EXISTS SensorData"+nlid + \
+        "  USING SensorData TAGS ('"+nlid+"');\r\n"  # %( nlid, nlid )
+    # print(s);
+    c1.execute(s)
+    sqlcmd = ['insert into SensorData%s  values' % (nlid)]
+    sqlcmd.append('(now, \'%s\', \'%s\', \'%s\', \'%s\');' %
+                  (node_code, client_id, sts, data))
+    #print(' '.join(sqlcmd));
+    c1.execute(' '.join(sqlcmd))
+
+
+#di.loadDataFromSQL()
+
+doMQTT()

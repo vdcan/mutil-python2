@@ -1,0 +1,46 @@
+
+docker-compose down
+#docker rm -f $(docker ps -a -q)
+#docker volume rm $(docker volume ls -q)
+docker-compose up -d
+docker-compose logs -f%
+
+docker-compose -f docker-compose.yaml   up -d
+docker-compose -f docker-compose.yml -f docker-compose-test.override.yml up -d
+./run_unit_tests
+docker-compose -f docker-compose.yml -f docker-compose-test.override.yml down
+
+
+ docker run -h foo.bar.baz   hello_world_nginx:latest  
+
+ docker network create docker_network
+docker run --net docker_network --name test1  hello_world_nginx:latest&  
+docker run --net docker_network --name test2  hello_world_nginx:latest & 
+
+
+docker build -t python-imagename .
+
+docker run   -p 8010:80    -h htest1   --net docker_network --name test1  hello_world_nginx:latest&  
+
+docker run   -p 8019:80  -h htest2    --net docker_network --name test2  hello_world_nginx:latest&  
+
+
+docker exec   -d  --name test1   python-agent /bin/sh
+docker exec   -it  test1   python:3.10-slim /bin/sh
+
+
+docker run    -d   python-agent   
+
+docker build --progress=plain -t caijie73/python-agent .
+docker build --progress=plain -t caijie73/python-web .
+
+docker run    -d   python-web   
+
+mosquitto_passwd  /mosquitto/config/password caijie
+
+
+docker build --progress=plain -t caijie73/python-agent .
+docker build --progress=plain -t caijie73/python-web .
+
+docker push caijie73/python-agent 
+docker push caijie73/python-web

@@ -1,0 +1,164 @@
+<!-- This file is part of https://github.com/jainamoswal/Flask-Example. -->
+<!-- Usage covered in IDC lICENSE -->
+<!-- Jainam Oswal. jainam.me -->
+<html>
+
+<head>
+
+    <script src="/js/jquery.min.js"></script>
+    
+    <script src="/js/MyUtility.js"></script>
+    <script src="/js/jquery.dataTables.min.js"></script>
+    <link href="/css/jquery.dataTables.min.css" rel="stylesheet">
+    </script>
+    <style>
+    
+    .dataTables_length{display: none;}
+    .dataTables_filter{display: none;}
+    .dataTables_paginate {display: none;}
+    .dataTables_info {display: none;}
+    </style>
+</head>
+
+<body>
+    <h1>AddressAliasID </h1><input type="text" id="AliasID" value="20220422123515945336"/>
+    <button onclick="queryAddress()">Query</button> 
+</body>
+<table id="table4" style="width: 100%;">
+
+    <thead>
+
+        <tr>
+
+            <th>ASSOCIATION</th>
+
+            <th>From Resource</th>
+
+            <th>To Resource</th>
+            <th>To Place</th>
+            <th>Network</th>
+
+        </tr>
+
+    </thead>
+
+</table>
+<script>   
+function cleanData(d){
+    d=d+"";
+    d=d.replaceAll("null", "");
+    return d;
+}
+function queryAddress(){
+    var aid= $("#AliasID").val();
+    queryData("/queryp?aid="+aid) ;
+}  
+ var table = {};
+function queryData(url){  
+
+
+console.log(url);
+table.ajax.url( url ).load();
+}
+function initTable(url){
+    /*AJAX Response Binding*/
+        
+    table =    $('#table4').DataTable({
+
+ajax: {
+
+    url:url ,
+
+    dataSrc: "message"
+
+},
+
+columns: [
+
+    {
+        data: 'ASSOCIATIONPATTERN_ID', render: function (data, type, row) {
+
+            return row.ASSOCIATIONPATTERN_ID + '<br/>'+row.A_DN;
+
+        }
+    },
+
+    {
+        data: 'FROM_TYPE', render: function (data, type, row) {
+            var t = cleanData(row.R_DN) + "<br/>"+  cleanData(row.RESOURCE_UNIQUEID)+ "<br/>"+  cleanData(row.R_NAME)+ "<br/>"+  cleanData(row.R_PREFIX)+ "<br/>"+  cleanData(row.FROM_TYPE);
+            if(t.replaceAll("<br/>", "").trim()==""){
+                return "";
+            }else{
+
+                return "<a href='javascript:queryData(\"/queryr?ft=f&prid="+row.PHYSICALRESOURCE_UNIQUEID+"&lrid="+row.LOGICALRESOURCE_UNIQUEID+"\")'>"+t+"</a>";
+            }
+
+        }
+
+    },
+    {
+        data: 'FROM_TYPE', render: function (data, type, row) {
+ 
+            var t = cleanData(row.TO_R_DN) + "<br/>"+  cleanData(row.TO_RESOURCE_UNIQUEID)+ "<br/>"+  cleanData(row.TO_R_NAME)+ "<br/>"+  cleanData(row.TO_R_PREFIX)+ "<br/>"+  cleanData(row.TO_TYPE);
+
+            if(t.replaceAll("<br/>", "").trim()==""){
+                return "";
+            }else{
+
+                return "<a href='javascript:queryData(\"/queryr?ft=t&prid="+row.TO_PHYSICALRESOURCE_UNIQUEID+"&lrid="+row.TO_LOGICALRESOURCE_UNIQUEID+"\")'>"+t+"</a>";
+            }
+        }
+
+    },
+
+    {
+        data: 'A_DN', render: function (data, type, row) {
+   var t = cleanData(row.TO_P_DN)  ;
+
+   if(t.replaceAll("<br/>", "").trim()==""){
+                return "";
+            }else{
+
+                return "<a href='javascript:queryData(\"/queryp?ft=t&pid="+row.TO_PLACE_UNIQUEID+"\")'>"+t+"</a>";
+            }
+
+        }
+    },
+    {
+        data: 'FROM_TYPE', render: function (data, type, row) {
+  
+            
+   var t = cleanData(row.N_DN)  ;
+
+if(t.replaceAll("<br/>", "").trim()==""){
+             return "";
+         }else{
+
+             return "<a href='javascript:queryData(\"/queryn?ft=t&nid="+row.NETWORK_UNIQUEID+"\")'>"+t+"</a>";
+         } 
+
+        }
+
+    }
+
+],
+
+"pageLength": 100
+
+});
+}
+$(function () {
+    initTable('/dbquery');
+        /*  $.ajax({url: "/api", success: function(result){
+          console.log(result.message) ;
+          $("#template_tab").tmpl({ Table: result.message }).appendTo("#context");
+          }});  
+        
+            }) */
+
+    
+    });
+</script>
+
+
+</html>

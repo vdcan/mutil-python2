@@ -1,0 +1,22 @@
+FROM python:3.10-slim 
+# Or any preferred Python version.
+
+RUN mkdir -p /opt/app
+RUN mkdir -p /opt/app/tmp
+RUN mkdir -p /opt/app/web
+#COPY *.py /opt/app
+COPY *.txt /opt/app
+WORKDIR /opt/app
+RUN pip install -r requirements.txt
+COPY TDengine-client-2.4.0.4 /opt/app
+#WORKDIR /tmp/TDengine-client-2.4.0.4 
+RUN ls  /opt/app/
+RUN chmod +x /opt/app/install_client.sh
+RUN /opt/app/install_client.sh
+
+COPY flask_web /opt/app/web
+#ADD main.py .
+#RUN pip install requests beautifulsoup4 python-dotenv
+EXPOSE 80
+CMD ["python", "./web/run.py"] 
+# Or enter the name of your unique directory and parameter set.

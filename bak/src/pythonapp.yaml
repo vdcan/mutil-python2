@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jssqldataprocess
+  labels:
+    app: jssqldataprocess
+spec:
+  selector:
+    matchLabels:
+      app: jssqldataprocess
+      tier: jssqldataprocess
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jssqldataprocess
+        tier: jssqldataprocess
+    spec:
+      containers:
+      - image:  caijie73/python3.6
+        name: jssqldataprocess

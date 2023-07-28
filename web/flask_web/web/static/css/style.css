@@ -1,0 +1,63 @@
+
+body { 
+  
+  background-color: black;
+  color: #008b10;
+  fill: #008b10;
+  padding: 0px;
+margin: 0px;
+}
+table {
+  border-collapse: none; 
+  color:none;
+      border-color:#008b10;
+      #height: 100%;
+}
+.table td, .table th {
+  padding: .75rem;
+  vertical-align: top;
+  height: 56px;
+}
+H2
+{
+	font-size:40px;
+}
+.elementDiv2{
+	width: 100%;
+}
+
+
+.btn {
+  position: relative;
+  background-color: #008b10;
+  border: none; 
+  color: #FFFFFF;
+  padding: 5px;
+  width: 100%;
+  text-align: center;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.btn:after {
+  content: "";
+  background: #90EE90;
+  display: block;
+  position: absolute;
+  padding-top: 300%;
+  padding-left: 350%;
+  margin-left: -20px!important;
+  margin-top: -120%;
+  opacity: 0;
+  transition: all 0.8s
+}
+
+.btn:active:after {
+  padding: 0;
+  margin: 0;
+  opacity: 1;
+  transition: 0s
+}

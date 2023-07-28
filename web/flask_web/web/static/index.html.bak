@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"><script src="config.js"></script>
+<script src="jquery.min.js"></script>
+<script src="jquery.tmpl.min.js"></script>
+<script src="jquery.tmplPlus.min.js"></script>
+<link href="style.css" rel="stylesheet" /> 
+<link href="verticalTabs.css" rel="stylesheet" /> 
+<script src="verticalTabs.js"></script>
+
+</head><body><div class="topTitleBar" style=" width: 100%;  border-bottom: 2px solid #008b10;">
+<h2 >Page </h2>
+    </div><script>var gMenuData= [{"id":"kckum","title":"layout for group for Demo home","url":"kckum.html"},
+]
+</script>
+<script id="template_tab" type="text/x-jquery-tmpl">{{each(i,v) Table}}{{if i == 0}} <button class="lTab active" onclick="switchTab(event, '{{= v.id}}')" >{{= v.title}}</button>{{else}} <button class="lTab" onclick="switchTab(event, '{{= v.id}}')">{{= v.title}}</button>{{/if}} 	{{/each}} </script> <script id="template_context" type="text/x-jquery-tmpl" > 				{{each(i,v) Table}} 			 				{{if i == 0}} 				<div id="{{= v.id}}" class="vTabActive"> 		 {{else}} 		 		 				<div id="{{= v.id}}" class="vTab">{{/if}} <iframe id="Iframe{{= v.id}}" src="{{= v.url}}" style="width:100%;min-height:100vh;margin: 0px; overflow: hidden; border: none;"></iframe></div>{{/each}}</script><div id="tab" class="tab"></div><div id="context"></div></body></html>

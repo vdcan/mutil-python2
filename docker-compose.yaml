@@ -1,0 +1,73 @@
+version: '3.4'
+
+services:
+  
+  tdengine:
+    image: tdengine/tdengine:2.4.0.4
+    hostname: iot_taosdb 
+    networks:
+      - frontend
+    ports:
+      - '6030-6041:6030-6041'
+      - '6030-6041:6030-6041/udp'
+    volumes:
+      - ./taosdb:/var/lib/taos 
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  web:
+    image: caijie73/python-web
+    hostname: iot_web 
+    networks:
+      - frontend
+    environment:
+      - CatalogUrl=http://catalog-api
+    expose:
+      - "80"
+    ports:
+      - "1820:80"
+    depends_on:
+      - tdengine  
+      - redis
+    volumes:
+      - ./web/flask_web:/opt/app/web
+    
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+ 
+  agent:
+    image: caijie73/python-agent
+    hostname: iot_agent 
+    networks:
+      - frontend
+    environment:
+      - CatalogUrl=http://catalog-api 
+    depends_on:
+      - tdengine  
+      - redis
+    restart: always
+    volumes:
+      - ./agent:/opt/app
+ 
+  redis:
+    image: redis
+    hostname: iot_redis
+    networks:
+      - frontend
+    environment:
+      - CatalogUrl=http://catalog-api 
+    restart: always
+    ports:
+      - "6379:6379"
+
+networks:
+  frontend:
+    driver: bridge

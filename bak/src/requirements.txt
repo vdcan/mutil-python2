@@ -1,0 +1,7 @@
+redis
+paho-mqtt
+pandas
+taospy
+pyodbc
+Flask
+mysql-connector-python

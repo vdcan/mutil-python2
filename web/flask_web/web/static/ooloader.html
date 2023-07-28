@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>jQuery DataTables Plugin | YogiHosting Demo</title>
+    <meta charset="utf-8" />
+
+    <script src="/js/jquery.min.js"></script>
+     
+         
+           
+    <link rel="stylesheet" type="text/css" href="/css/tabs.css" />
+           
+    <link rel="stylesheet" type="text/css" href="/css/tabstyles.css" />
+
+
+    <script src="/js/MyUtility.js"></script>
+    <script src="/js/jquery.dataTables.min.js"></script>
+    <link href="/css/jquery.dataTables.min.css" rel="stylesheet">
+    </script>
+    <style>
+
+        .dataTables_length{display: none;}
+      .dataTables_filter{display: none;}
+      .dataTables_paginate {display: none;}
+      .dataTables_info {display: none;}
+
+      #loading {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(192, 192, 192, 0.5);
+  background-image: url("/images/MnyxU.gif");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+      </style>
+    <style>
+        P {
+            padding: 0;
+        }
+
+        body {
+            background: #e7ecea;
+            color: #74777b;
+            font-weight: 400;
+            font-size: 1em;
+            font-family: 'Raleway', Arial, sans-serif;
+        }
+
+        .dataTables_length {
+            display: none;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        .dataTables_paginate {
+            display: none;
+        }
+
+        .dataTables_info {
+            display: none;
+        }
+        .container{
+            width: 100%;
+            
+        }
+
+        #content {
+            width: 30%;
+            float: left;
+            display: block; 
+        }
+
+        #history {
+            width: 70%;
+            float: left;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+        .tabs-style-shape {
+     max-width: 2000px;  
+}
+.content-wrap section {
+    display: none;
+    /* margin: 0 auto; */
+    /* */ padding: 5px;
+    max-width: 1200px;
+    text-align: center;
+}
+    </style>
+</head>
+
+<body>
+
+    <h1>Upload new File</h1>
+    <form method=post action="/uploader" enctype=multipart/form-data> <input type=file name=file><input type=submit value=Upload></form>
+</body>
+
+</html>

@@ -1,0 +1,1035 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>jQuery DataTables Plugin | YogiHosting Demo</title>
+    <meta charset="utf-8" />
+
+    <script src="/js/jquery.min.js"></script>
+     
+         
+           
+    <link rel="stylesheet" type="text/css" href="/css/tabs.css" />
+           
+    <link rel="stylesheet" type="text/css" href="/css/tabstyles.css" />
+
+
+    <script src="/js/MyUtility.js"></script>
+    <script src="/js/jquery.dataTables.min.js"></script>
+    <link href="/css/jquery.dataTables.min.css" rel="stylesheet">
+    </script>
+    <style>
+
+        .dataTables_length{display: none;}
+      .dataTables_filter{display: none;}
+      .dataTables_paginate {display: none;}
+      .dataTables_info {display: none;}
+
+      #loading {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(192, 192, 192, 0.5);
+  background-image: url("/images/MnyxU.gif");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+      </style>
+    <script type="text/javascript" src="/js/mxClient.min.js"></script>
+
+    <style>
+        P {
+            padding: 0;
+        }
+
+        body {
+            background: #e7ecea;
+            color: #74777b;
+            font-weight: 400;
+            font-size: 1em;
+            font-family: 'Raleway', Arial, sans-serif;
+        }
+
+        .dataTables_length {
+            display: none;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        .dataTables_paginate {
+            display: none;
+        }
+
+        .dataTables_info {
+            display: none;
+        }
+        .container{
+            width: 100%;
+            
+        }
+
+        #content {
+            width: 30%;
+            float: left;
+            display: block; 
+        }
+
+        #history {
+            width: 70%;
+            float: left;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+        .tabs-style-shape {
+     max-width: 2000px;  
+}
+    </style>
+</head>
+
+<body>
+    <div id="loading"></div>
+    <svg class="hidden">
+        <defs>
+            <path id="tabshape" d="M80,60C34,53.5,64.417,0,0,0v60H80z" />
+        </defs>
+    </svg>
+    <div class="container">
+        <div id="content" style="height:900px;">
+
+            <table style="width:100%;">
+                <tr>
+                    <Td>
+                        aaid
+                        <input type="text" id="AliasID" value="20220422123515945336" /> <button onclick="queryAddress()">Query</button>
+                    </Td>
+
+                    <Td>
+                        eid
+                        <input type="text" id="EntityID" value="65085288" /> <button onclick="queryEntity()">Query
+                        </button>
+                    </Td>
+                </tr>
+
+            </table>
+            <div style="width: 100%; height:400px; overflow:scroll; ">
+                <div id="tableCurrentHeader"> Resource</div>
+                <table id="tableCurrent">
+
+                    <thead>
+
+                        <tr>
+
+
+
+
+                        </tr>
+
+                    </thead>
+
+                </table>
+            </div>
+            <div style="width: 100%; height:400px; overflow:scroll; ">
+                <div id="tableViewHeader"> Resource</div>
+                <table id="tableView">
+
+                    <thead>
+
+                        <tr>
+
+
+
+
+                        </tr>
+
+                    </thead>
+
+                </table>
+            </div>
+
+        </div>
+        <div id="history">
+            <div class="tabs tabs-style-shape" style="width:100%;">
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="#section-shape-1">
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <span>History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#section-shape-2">
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <span>Graph</span>
+                            </a>
+                        </li>
+                   
+                        <li>
+                            <a href="#section-shape-3">
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <span>SQL</span>
+                            </a>
+                        </li> 
+                    </ul>
+                </nav>
+                <div class="content-wrap">
+                    <section id="section-shape-1">
+                        <p>
+                            <table id="tableHistory">
+                                <thead>
+                                    <tr>
+                                        <th>DN</th>
+                                        <th>Type</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </p>
+                    </section>
+                    <section id="section-shape-2">
+                        <p>
+                            <div id="graphContainer" style="position:absolute;overflow:auto;top:36px;bottom:0px;left:0px;right:0px;border-top:gray 1px solid;">
+                            </div>
+                        </p>
+                    </section>
+                    <section id="section-shape-3">
+                        <p>
+                              <button onclick=" crateSQLs()">SQL </button>
+                                <textarea id="tbSQL" style="width:100%; height: 600px">
+
+
+                            </textarea>
+                        </p>
+                    </section>
+ <!--
+
+                    <section id="section-shape-3">
+                        <p>
+                            <div id="graphContainer" style="position:absolute;overflow:auto;top:36px;bottom:0px;left:0px;right:0px;border-top:gray 1px solid;">
+                            </div>
+                        </p>
+                    </section>
+                   
+                    <section id="section-shape-3">
+                        <p>
+                            <div id="SQLContainer" style="position:absolute;overflow:auto;top:36px;bottom:0px;left:0px;right:0px;border-top:gray 1px solid; height:900px;">
+                              
+                            </div>
+                        </p>
+                    </section>
+-->
+                </div><!-- /content -->
+            </div><!-- /tabs -->
+
+        </div>
+    </div>
+
+    <!--Reference to jQuery-->
+
+    <script>
+
+        var gNodes = {};
+        var gEdge = {};
+
+        var gtable = {};
+
+        var gHistoryData = {};
+        var gHistoryDataList = [];
+        var gHistoryDataListURL = {};
+        var gHistoryCounter = 0;
+        var gHistoryDT = {}
+        var gCounter = 0;
+        function cleanData(d) {
+            d = d + "";
+            d = d.replaceAll("null", "");
+            return d;
+        }
+        function queryAddress() {
+            var aid = $("#AliasID").val();
+            queryData("tableCurrent", "/nqueryp?aid=" + aid);
+        }
+        function queryEntity() {
+            var aid = $("#EntityID").val();
+            queryData("tableCurrent", "/nquerye?eid=" + aid);
+        }
+        function queryData(tableID, url) {
+            console.log(tableID, url);
+            if (gHistoryData.hasOwnProperty(url)) {
+                console.log("found it: ", gHistoryData[url])
+                gtable[tableID].clear();
+
+                gtable[tableID].rows.add(gHistoryData[url]).draw();
+
+                showEntityInfo(tableID, gHistoryData[url]);
+
+                var data = gHistoryData[url];
+                showHistory(tableID, data, url);
+                return;
+            }
+            setVisible('#loading', true);
+            $.ajax({
+                url: url, success: function (result) {
+                    // $("#template_tab").tmpl({ Table: result.message }).appendTo("#context");
+                    //   console.log(result);
+                    result = result.replaceAll(":null", ":\"null\"");
+                    result = JSON.parse(result);
+                    for (var i = 0; i < result['message'].length; i++) {
+                        if (result['message'][i]["MY_ID"] == undefined) {
+                            result['message'][i]["MY_ID"] = result['my_id'];
+
+                        } if (result['message'][i]["MY_ID"] == result['message'][i]["FROM_UNIQUEID"]) {
+
+                            result['message'][i]["FROM_TO"] = "TO";
+                            result['message'][i]["DN"] = result['message'][i]["TO_DN"]
+                            result['message'][i]["ENKEY"] = result['message'][i]["TO_ENKEY"]
+                            result['message'][i]["ETYPE"] = result['message'][i]["TO_ETYPE"]
+                            result['message'][i]["UNIQUEID"] = result['message'][i]["TO_UNIQUEID"]
+                        } else {
+
+                            result['message'][i]["FROM_TO"] = "FROM";
+                            result['message'][i]["DN"] = result['message'][i]["FROM_DN"]
+                            result['message'][i]["ENKEY"] = result['message'][i]["FROM_ENKEY"]
+                            result['message'][i]["ETYPE"] = result['message'][i]["FROM_ETYPE"]
+                            result['message'][i]["UNIQUEID"] = result['message'][i]["FROM_UNIQUEID"]
+                        }
+                    }
+                    console.log(result);
+
+
+                    gtable[tableID].clear();
+                    gtable[tableID].rows.add(result['message']).draw();
+
+                    showEntityInfo(tableID, result['message']);
+                    result['message'].index = gHistoryCounter;
+                    gHistoryData[url] = result['message'];
+                    addNodes(gHistoryData[url]);
+                    var data = result['message'];
+
+                    showHistory(tableID, data, url);
+                    //crateSQLs();
+                    setVisible('#loading', false);
+                    return;
+
+                }
+            });
+
+            //  table[tableID].ajax.url(url).load();
+        }
+
+        function showHistory(tableID, data, url) {
+            if (gHistoryDataListURL[url] != undefined)
+                return;
+            if (tableID == "tableCurrent") {
+                //console.log(result['message']);
+                gHistoryDataListURL[url] = url;
+                var cData = {};
+                cData.url = url;
+                if (data[0]["MY_ID"] == data[0]["FROM_UNIQUEID"]) {
+                    cData.index = gHistoryCounter;
+                    cData.dn = data[0]["FROM_DN"];
+
+                    cData.type = data[0]["FROM_ETYPE"];
+                    cData.message = gHistoryData[url]
+
+                } else {
+                    cData.index = gHistoryCounter;
+                    cData.dn = data[0]["TO_DN"];
+
+                    cData.type = data[0]["TO_ETYPE"];
+                    cData.message = gHistoryData[url]
+                }
+
+                gHistoryDataList[gHistoryCounter] = cData
+                gHistoryCounter++;
+                gHistoryDT.clear();
+                gHistoryDT.rows.add(gHistoryDataList).draw();
+
+                // addNodes(gHistoryDataList[gHistoryCounter - 1]);
+            }
+        }
+        function showEntityInfo(tableID, data) {
+            var t = "";
+            if (data[0]["MY_ID"] == data[0]["FROM_UNIQUEID"]) {
+                t = data[0]["FROM_DN"] + "(" + data[0]["FROM_ETYPE"] + " " + data[0]["MY_ID"] + ")"
+            } else {
+
+                t = data[0]["TO_DN"] + " (" + data[0]["TO_ETYPE"] + " " + data[0]["MY_ID"] + ")";
+            }
+
+            if (tableID == "tableCurrent") {
+                $("#" + tableID + "Header").text(t);
+            } else {
+                $("#" + tableID + "Header").html("<a href='javascript:queryData(getGoTableID(\"" + tableID + "\"), \"/nquerye?eid=" + data[0]["MY_ID"] + "\")'>" + t + "</a>");
+
+            }
+
+        }
+        function getGoTableID(tableID) {
+            if (tableID == "tableCurrent") {
+                return "tableView";
+            } else
+                return "tableCurrent";
+        }
+        function initTable(tableID, url) {
+            /*AJAX Response Binding*/
+
+            gtable[tableID] = $('#' + tableID).DataTable({
+                data: [],
+
+                columns: [
+
+                    {
+                        className: tableID,
+                        data: 'FROM_TYPE', render: function (data, type, row) {
+                            var text = cleanData(row.A_ID) + '/' + cleanData(row.A_DN);
+                            if (text == "/")
+                                text = "";
+                            else
+                                text = text + "<br/>";
+                            // var t =cleanData(row.R_DN) + "<br/>" + cleanData(row.RESOURCE_UNIQUEID) + "<br/>" + cleanData(row.R_NAME) + "<br/>" + cleanData(row.R_PREFIX) + "<br/>" + cleanData(row.FROM_TYPE);
+                            var t = row.DN; //+ "--"+cleanData(row.R_NAME) + "--" + cleanData(row.R_PREFIX) + "--" + cleanData(row.FROM_TYPE);
+
+
+
+                            if (t.replaceAll("--", "").trim() == "") {
+                            } else {
+                                // row.myid+"/"+ 
+
+                                text = text + row.FROM_TO + ":&nbsp;" + cleanData(row.ETYPE) + "&nbsp;" + row.UNIQUEID + "&nbsp;" + createQueryUrl(tableID, row.UNIQUEID, row.UNIQUEID, t);
+                                //  return "<a href='javascript:queryData(getGoTableID(\"" + tableID + "\"), \"/queryr?ft=f&prid=" + row.PHYSICALRESOURCE_UNIQUEID + "&lrid=" + row.LOGICALRESOURCE_UNIQUEID + "\")'>" + t + "</a>";
+                            }
+                            return text;
+                        }
+                    }
+
+                ]
+
+            });
+        }
+        function createQueryUrl(tableID, pid, lid, t) {
+            var eid = "";
+            if (pid != "null")
+                eid = pid;
+            if (lid != "null")
+                eid = lid;
+            if (tableID == "tableCurrent")
+                return "<a href='javascript:queryData(getGoTableID(\"" + tableID + "\"), \"/nquerye?eid=" + eid + "\")'>" + t + "</a>";
+            else return t;
+        }
+        $(function () {
+            initTable('tableCurrent', '/dbquery');
+            initTable('tableView', '/dbquery');
+
+            gHistoryDT = $('#tableHistory').DataTable({
+                data: [],
+                columnDefs: [
+
+                    {
+
+                        targets: "_all",
+
+                        className: 'dt-body-left'
+
+                    }
+
+                ],
+                columns: [
+                    // { data: 'id' },
+                    {
+                        data: 'dn', render: function (data, type, row) {
+                            return "<a href='javascript:queryData(getGoTableID(\"tableView\"), \"" + row.url + "\")'>" + data + "</a>";
+                            // return createQueryUrl("tableCurrent", row.eid, row.eid, data);
+                            //  return data;
+                        }
+                    },
+                    { data: 'type' }
+                ]
+            });
+
+
+
+        });
+
+
+
+    </script>
+
+    <script src="/js/cbpFWTabs.js"></script>
+    <script>
+        var glayout = {};
+        var gorganic = {};
+        var ggraph = {};
+        var gparent = {};
+        var gStyleArray = {};
+        var gSelectedNode = {};
+        (function () {
+
+            [].slice.call(document.querySelectorAll('.tabs')).forEach(function (el) {
+                var t = new CBPFWTabs(el, { start: 3 });
+                t.current = 1;
+                t._show();
+            });
+            main(document.getElementById('graphContainer'))
+            
+            setVisible('#loading', false);
+        })();
+
+
+
+        // Program starts here. Creates a sample graph in the
+        // DOM node with the specified ID. This function is invoked
+        // from the onLoad event handler of the document (see below). 
+        function testDraw() {
+
+            gorganic.execute(gparent);
+        }
+        function main(container) {
+            // Checks if browser is supported
+            if (!mxClient.isBrowserSupported()) {
+                // Displays an error message if the browser is
+                // not supported.
+                mxUtils.error('Browser is not supported!', 200, false);
+            }
+            else {
+                // Creates the graph inside the given container
+                ggraph = new mxGraph(container);
+
+                // Adds rubberband selection
+                new mxRubberband(ggraph);
+
+                mxEvent.disableContextMenu(container);
+                // Changes the default vertex style in-place
+                var style = ggraph.getStylesheet().getDefaultVertexStyle();
+                style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+                style[mxConstants.STYLE_GRADIENTCOLOR] = 'white';
+                style[mxConstants.STYLE_PERIMETER_SPACING] = 6;
+                style[mxConstants.STYLE_ROUNDED] = true;
+                style[mxConstants.STYLE_SHADOW] = true;
+
+                style = ggraph.getStylesheet().getDefaultEdgeStyle();
+                style[mxConstants.STYLE_ROUNDED] = true;
+
+                // Creates a layout algorithm to be used
+                // with the graph
+                glayout = new mxHierarchicalLayout(ggraph);
+                gorganic = new mxFastOrganicLayout(ggraph);
+                gorganic.forceConstant = 120;
+
+                gparent = ggraph.getDefaultParent();
+
+                // Adds a button to execute the layout
+                /* var button = document.createElement('button');
+                 mxUtils.write(button, 'Hierarchical');
+                 mxEvent.addListener(button, 'click', function (evt) {
+                     layout.execute(gparent);
+                 });
+                 mxEvent.addListener(button, 'right-click', function (evt) {
+                     layout.execute(gparent);
+                 });*/
+                ggraph.getTooltipForCell = function (cell) {
+
+                    return 'Right- or shiftclick';
+
+                }
+                //document.body.appendChild(button);
+                ggraph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
+
+                    return createPopupMenu(ggraph, menu, cell, evt);
+
+                };
+                // Adds a button to execute the layout
+                //var button = document.createElement('button');
+                //mxUtils.write(button, 'Organic');
+
+                //mxEvent.addListener(button, 'click', function (evt) {
+                //    gorganic.execute(gparent);
+                //});
+                addStyle("ESP", "/svg/house-svgrepo-com.svg");
+                addStyle("NTWK", "/svg/cloud.svg");
+                addStyle("ME", "/svg/rack.svg");
+                addStyle("CBL", "/svg/device-cable-power-svgrepo-com.svg");
+                addStyle("default", "/svg/router-svgrepo-com.svg");
+                // document.body.appendChild(button);
+                // addNode();
+                // Load cells and layouts the graph
+
+                if (mxClient.IS_QUIRKS) {
+                    document.body.style.overflow = 'hidden';
+                    new mxDivResizer(container);
+                }
+            }
+        };
+        /*
+         {
+                   "A_DN": "null",
+                   "A_ID": "null",
+                   "FROM_DN": "NTWK=SNTQUTMA SNTQUTJ0005 080 To 357 W SADDLEBROOK DR 008",
+                   "FROM_ENKEY": "NTWK",
+                   "FROM_ETYPE": "Network",
+                   "FROM_TYPE": "Network",
+                   "FROM_UNIQUEID": 65099854,
+                   "TO_DN": "ME=SNTQUTMA SNTQUTJ0005/RK=001/DF=001/SL=001/NC=001/PP=080",
+                   "TO_ENKEY": "PP",
+                   "TO_ETYPE": "Physical Port",
+                   "TO_TYPE": "PhysicalResource",
+                   "TO_UNIQUEID": 65085288
+               },*/
+
+
+        var gSQLArray = {
+            "AiasID>Place":
+            {
+                "table": " from hv_address addr join externalsystemplacesi espa on espa.externalid = addr.address_alias_id join distinguishedname esp on esp.entityid = espa.uniqueid ",
+                "table2": "  ", "columns": "addr.address_alias_id"
+            },
+            "PhysicalResource>LogicalResource":
+
+            {
+                "table": "join assoc_pr_pl a<ALIAS> on a<ALIAS>.to_lr_id = <FROM_ID> and a<ALIAS>.associationpattern_id = <A_ID> --<A_DN>  ",
+                "table2": " join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.from_pr_id ",
+                "columns": "<ALIAS>.distinguishedname <ALIAS>"
+            },
+            "Network>Network":
+            {
+                "table": "join AGGR_NET_PR a<ALIAS> on a<ALIAS>.PHYSICALRESOURCE_UNIQUEID = <FROM_ID>  join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.NETWORKSI_UNIQUEID ",
+                "table2": " join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.from_pr_id ", "columns": "<ALIAS>.distinguishedname <ALIAS>"
+            },
+            "Network>PhysicalResource":
+            {
+                "table": "join AGGR_NET_PR a<ALIAS> on a<ALIAS>.PHYSICALRESOURCE_UNIQUEID = <FROM_ID>  join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.NETWORKSI_UNIQUEID ",
+                "table2": " join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.from_pr_id ", "columns": "<ALIAS>.distinguishedname <ALIAS>"
+            },
+            "PhysicalResource>PhysicalResource":
+            {
+                "table": "join assoc_pr_pr a<ALIAS> on a<ALIAS>.to_pr_id = <FROM_ID> and a<ALIAS>.associationpattern_id = <A_ID> --<A_DN> ",
+                "table2": " join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.from_pr_id ", "columns": "<ALIAS>.distinguishedname <ALIAS>"
+            },
+            "PhysicalResource>Place":
+            {
+                "table": "join assoc_pr_pl a<ALIAS> on a<ALIAS>.to_pl_id = <FROM_ID> and a<ALIAS>.associationpattern_id = <A_ID> --<A_DN> ",
+                "table2": " join distinguishedname <ALIAS> on <ALIAS>.entityid = a<ALIAS>.from_pr_id ", "columns": "<ALIAS>.distinguishedname <ALIAS>"
+            },
+        }
+        var gAliasArray = {};
+        var gENKEYArray = {};//{"ESP":0};
+        function crateSQLs() {
+            var key = "AiasID>Place"
+            var sql = "";
+            var sel = "select addr.address_alias_id, esp.distinguishedname  esp ";
+            var aid = $("#AliasID").val();
+            var where = "\r\n where addr.address_alias_id='" + aid + "'";
+
+            sql = gSQLArray[key].table;
+            var p_next_id = gSQLArray[key].next_id;
+
+            // var list = {"you": 100, "me": 75, "foo": 116, "bar": 15};
+            var keysSorted = Object.keys(gHistoryData).sort(function (a, b) { return gHistoryData[a].index - gHistoryData[b].index })
+            console.log(keysSorted);
+
+            //  gAliasArray[ "ESP_"+ uid]="ESP"
+            //   Object.entries(gHistoryData).forEach(entry => {
+            //  console.log(entry);
+            // [key2, result] = entry; 
+            keysSorted.forEach(element => {
+                result = gHistoryData[element];
+                for (var i = 0; i < result.length; i++) {
+                    var data = result[i];
+
+                    var selected = null;
+                    try {
+                        selected = gSelectedNode[data["UNIQUEID"]];
+                    } catch (e) {
+
+                    }
+                    if (selected != null && selected != undefined) {
+                        key = data["FROM_TYPE"] + ">" + data["TO_TYPE"];
+                        console.log(key);
+                        if (data["ENKEY"] != "ESP") {
+
+                            sel = sel + ", " + gSQLArray[key].columns;
+                            sel = sel.replaceAll("\\<ALIAS\\>", getAlias(data["ENKEY"], data["UNIQUEID"]));
+                            sql = sql + "\r\n" + getSQL(key, data)
+                            p_next_id = gSQLArray[key].next_id;
+                        }
+
+                    }
+                }
+            });
+            console.log(sel, sql, where);
+            // alert(sel+" "+sql+" "+ where);
+            $("#tbSQL").val(sel + " " + sql + " " + where);
+            // mxUtils.alert(sel+" "+sql+" "+ where);
+        }
+
+        
+function setVisible(selector, visible) {
+  document.querySelector(selector).style.display = visible ? 'block' : 'none';
+}
+
+        function getSQL(key, data) {
+            var sql = "";
+            sql = gSQLArray[key].table;
+            sql = sql + "\r\n" + gSQLArray[key].table2;
+            if (data == null) {
+                return sql;
+            } else {
+                for (var k in data) {
+                    //   console.log(k);
+                    sql = sql.replaceAll("\\<ALIAS\\>", getAlias(data["ENKEY"], data["UNIQUEID"]));
+                    sql = sql.replaceAll("\\<FROM_ID\\>", getAlias(data["TO_ENKEY"], data["TO_UNIQUEID"]) + ".entityid");
+                    sql = sql.replaceAll("\\<A_ID\\>", data["A_ID"]);
+                    sql = sql.replaceAll("\\<A_DN\\>", data["A_DN"]);
+                }
+            }
+            return sql
+
+        }
+        function getAlias(enkey, uid) {
+            var key = enkey + "_" + uid;
+            var k = gAliasArray[key];
+            // console.log(k);
+            if (k != undefined) {
+                // console.log(k);
+                return k;
+            }
+            if (gENKEYArray[enkey] != undefined) {
+                var c = gENKEYArray[enkey] + 1;
+                gENKEYArray[enkey] = c;
+                k = enkey + c;
+            } else {
+                gENKEYArray[enkey] = 0;
+                k = enkey;
+            }
+            gAliasArray[key] = k;
+            //  console.log(k);
+            return k;
+        }
+
+        function addNodes(nodeGroup) {
+
+            ggraph.getModel().beginUpdate();
+            // console.log("addNodes:", nodeGroup);
+
+            try {
+                var message = nodeGroup;
+
+                for (var i = 0; i < message.length; i++) {
+                    var data = message[i];
+                    var fromNode = gNodes[data.FROM_UNIQUEID]
+                    var toNode = gNodes[data.TO_UNIQUEID]
+
+                    if (fromNode == null) {
+                        fromNode = addNode({ id: data.FROM_UNIQUEID, text: data.FROM_DN, type: data.FROM_ENKEY });
+
+                        gNodes[data.FROM_UNIQUEID] = fromNode;
+                    }
+
+                    if (toNode == null) {
+                        toNode = addNode({ id: data.TO_UNIQUEID, text: data.TO_DN, type: data.TO_ENKEY });
+
+                        gNodes[data.TO_UNIQUEID] = toNode;
+
+                    }
+                    addLink(fromNode, toNode, (data.A_ID + "").replaceAll("null", ""));
+                }
+
+                glayout.execute(gparent);
+
+                gorganic.execute(gparent);
+            }
+            finally {
+                // Updates the display
+                ggraph.getModel().endUpdate();
+            }
+
+        }
+
+        function addStyle2(name, svg) {
+
+            gStyleArray[name] = svg;
+        }
+        function createPopupMenu(graph, menu, cell, evt) {
+            if (cell != null) {
+                menu.addItem('Select', '/svg/router-svgrepo-com.svg', function () {
+                    console.log("MenuItem1");
+
+                    console.log(cell.sname)
+                    changeStyle(cell, "_S");
+                    gSelectedNode[cell.node_id] = cell.node_id;
+                    //    mxUtils.alert('MenuItem1');
+                });
+            }
+            else {
+                menu.addItem('No-Cell Item', '/svg/router-svgrepo-com.svg', function () {
+                    mxUtils.alert('MenuItem2');
+                });
+            }
+            //menu.addSeparator();
+            menu.addItem('Unselect', '/svg/router-svgrepo-com.svg', function () {
+
+                console.log(cell.sname)
+                changeStyle(cell, "");
+
+                gSelectedNode[cell.node_id] = null;
+                console.log("MenuItem2");
+            });
+        };
+
+        function changeStyle(cell, t) {
+            ggraph.getModel().beginUpdate(); // required if you want to apply the highlight to all cells in a single transaction
+            try {
+                //graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, 'red', cell)
+                //var s =mxUtils.getCellStyle(graph.getModel(), cell)
+                //console.log( ggraph.getStylesheet());
+                // var s = ggraph.getStylesheet().styles[cell.sname + t];
+
+                //  var s =graph.getView().getState(cell).style;//.getStyle();//.replace(mxConstants.STYLE_IMAGE, new ImageIcon( GraphViewer.class.getResource("/com/mxgraph/examples/swing/images/cube_green.png")));
+                //console.log(s);
+                //  var s2 = mxUtils.clone(s);   s2.strokeColor ="red";
+                //graph.getView().getState(cell).style.strokeColor ="red"
+                //   console.log(s2);
+                //mxStyleChange(mxGraphModel graph, java.lang.Object cell, java.lang.String style)  
+
+                //graph.setCellStyles(  mxConstants.STYLE_STROKECOLOR, 'red'  ,cell  );
+                // ggraph.setCellStyles(s, [cell]);
+                if (t == "")
+                    ggraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, 'black', [cell]);
+                else
+                    ggraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, 'red', [cell]);
+
+            } finally {
+                // Updates the display
+                ggraph.getModel().endUpdate();
+                ggraph.refresh();
+            }
+
+
+        }
+
+        function addStyle(name, svg) {
+
+            const style2 = new Object();
+            style2[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LABEL;
+
+            style2[mxConstants.STYLE_STROKECOLOR] = '#000000';
+
+            style2[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+
+            style2[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+
+            style2[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
+
+            style2[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+
+            style2[mxConstants.STYLE_IMAGE] = svg;
+
+            style2[mxConstants.STYLE_IMAGE_WIDTH] = '48';
+
+            style2[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
+
+            style2[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+            style2[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
+
+            style2[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_LEFT;
+
+            style2[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+
+            style2[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+            style2[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_RIGHT;
+            if (svg != null) {
+                style2[mxConstants.STYLE_IMAGE] = svg;
+                gStyleArray[name] = svg;
+
+            }
+
+            style2[mxConstants.STYLE_SPACING_LEFT] = '5';
+
+            style2[mxConstants.STYLE_SPACING] = '4';
+
+            ggraph.getStylesheet().putCellStyle(name, style2); // name style
+            var s2 = mxUtils.clone(style2);
+            s2[mxConstants.STYLE_STROKECOLOR] = 'red';
+            ggraph.getStylesheet().putCellStyle(name + "_S", s2); // name style
+        }
+        function addNode(data) {
+            //  console.log("addNode", data)
+            // Load cells and layouts the graph  
+            var s = "default"
+            try {
+                if (gStyleArray[data.type] != undefined) {
+                    s = data.type; //"<img src='"+gStyleArray[data.type]+"'/>"+data.text;
+
+                }
+                // console.log("addNode", s)
+            } catch (e) {
+
+            }
+            var t = breakText(data.text)
+            var v1 = ggraph.insertVertex(gparent, null, t.t, 0, 0, t.rw, t.h, s);
+            v1.sname = s;
+            v1.node_id = data.id;
+            //console.log(v1);
+            // if(toNode!=null)
+            // var e1 = ggraph.insertEdge(gparent, null, '', v1, toNode); 
+            // Executes the layout
+            //  glayout.execute(gparent);
+            v1.id = data.id;
+            return v1;
+
+        }
+
+
+
+        function addLink(fromNode, toNode, aid) {
+            var k = fromNode.id + ">" + toNode.id;
+            //  console.log("addLink", k)
+            if (gEdge[k] == null) {
+                var e1 = ggraph.insertEdge(gparent, null, aid, fromNode, toNode);
+                gEdge[k] = e1;
+            }
+            // Executes the layout
+
+
+        }
+        function breakText(t) {
+
+            var r = {};
+
+            var cutter = [{
+
+                min: 0,
+
+                max: 20,
+
+                w: 20,
+
+                h: 60,
+
+                r: 1
+
+            },
+
+            {
+
+                min: 20,
+
+                max: 40,
+
+                w: 20,
+
+                h: 60,
+
+                r: 2
+
+            }
+
+                ,
+
+            {
+
+                min: 40,
+
+                max: 60,
+
+                w: 20,
+
+                h: 60,
+
+                r: 3
+
+            }
+
+
+
+                ,
+
+            {
+
+                min: 60,
+
+                max: 100,
+
+                w: 30,
+
+                h: 60,
+
+                r: 3
+
+            }
+
+                ,
+
+            {
+
+                min: 100,
+
+                max: 200,
+
+                w: 40,
+
+                h: 60,
+
+                r: 5
+
+            }
+
+            ]
+
+            for (var i = 0; i < cutter.length; i++) {
+
+                var c = cutter[i];
+
+                var l = 0;
+
+                var rt = "";
+
+                if (t.length > c.min && t.length <= c.max) {
+
+                    l = t.length / c.r;
+
+                    rt = "";
+
+                    for (var i = 0; i < c.r; i++) {
+
+                        rt = rt + t.substring(i * l, (i + 1) * l) + "\r\n"
+
+                    }
+
+                    c.t = rt;
+
+                    c.rl = l
+                    c.rw = c.w * 8 + 35;
+
+                    return c;
+
+                }
+
+            }
+
+        }
+
+    </script>
+</body>
+
+</html>

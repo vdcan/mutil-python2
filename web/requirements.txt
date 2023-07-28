@@ -1,0 +1,6 @@
+redis
+paho-mqtt
+pandas
+taospy
+pyodbc
+Flask

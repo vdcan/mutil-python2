@@ -1,0 +1,73 @@
+<!-- This file is part of https://github.com/jainamoswal/Flask-Example. -->
+<!-- Usage covered in IDC lICENSE -->
+<!-- Jainam Oswal. jainam.me -->
+<html>
+
+<head>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.tmpl.min.js"></script>
+    <script src="/js/jquery.tmplPlus.min.js"></script>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="/css/verticalTabs.css" rel="stylesheet" /> 
+</head>
+
+<body>
+    <h1>Hello </h1>
+</body>
+
+<script>var gMenuData = [{ "id": "kckum", "title": "layout for group for Demo home", "url": "/page/kckum.html" },
+    ]
+
+    $(function () {
+ 
+  $.ajax({url: "/api", success: function(result){
+  console.log(result.message) ;
+  $("#template_tab").tmpl({ Table: result.message }).appendTo("#context");
+  }}); 
+
+
+      // 
+
+    })
+</script>
+<script id="template_tab" type="text/x-jquery-tmpl">
+    <table style="width:100%">   
+            <tr>
+                    <td>     AID0 </td> 
+                    <td>    A_DN0  </td> 
+                 <!-- <td>      NETWORK_UNIQUEID0   </td> -->  
+                 <!--    <td>    N_DN0   </td> -->  
+                    <td>     PHYSICALRESOURCE  </td> 
+                    <td>      TO_r  </td>  
+                    <td>      TO_NE</td> 
+                    <td>     TO_PL  </td> 
+                    <td>      TO_P_DN0  </td> 
+                    <td>      TO_RESOURCE   </td> 
+                    <td>     TO_TYPE0   </td> 
+     
+             </tr>            
+    {{each(i,v) Table}}
+         <tr>
+                <td>     {{= v.ASSOCIATIONPATTERN_ID0}}  </td> 
+                <td>     {{= v.A_DN0}}  </td> 
+                <!--    <td>     {{= v.NETWORK_UNIQUEID0}}  </td> -->  
+                    <!--   <td>     {{= v.N_DN0}}  </td> -->  
+                <td>     {{= v.PHYSICALRESOURCE_UNIQUEID0}}  </td> 
+                <td>     {{= v.RESOURCE_UNIQUEID0}}  <br/>     {{= v.R_DN0}}    <br/>   {{= v.R_NAME0}}   <br/>    {{= v.R_PREFIX0}} <br/>{{= v.FROM_TYPE0}}  </td> 
+                <td>     {{= v.TO_LOGICALRESOURCE_UNIQUEID0}}  </td>  
+                <td>     {{= v.TO_NETWORK_UNIQUEID0}}  </td> 
+                <td>     {{= v.TO_PLACE_UNIQUEID0}}  </td> 
+                <td>     {{= v.TO_P_DN0}}  </td> 
+                <td>     {{= v.TO_RESOURCE_UNIQUEID0}}   <br/>   {{= v.TO_R_DN0}}   <br/>    {{= v.TO_R_NAME0}}    <br/>   {{= v.TO_TYPE0}}  </td> 
+ 
+         </tr>
+     {{/each}} 
+    </table>
+</script>
+ 
+<div id="context"></div>
+</body>
+
+
+</html>

@@ -1,0 +1,25 @@
+FROM tadeorubio/pyodbc-msodbcsql17
+#FROM caijie73/k8s_python_data_process
+MAINTAINER XenonStack
+ 
+# Creating Application Source Code Directory
+RUN mkdir -p /k8s_python_demo_code/src
+WORKDIR /k8s_python_demo_code/src
+COPY TDengine-client-2.4.0.4 /k8s_python_demo_code/src
+RUN  /k8s_python_demo_code/src/install_client.sh
+RUN /usr/local/bin/python -m pip install --upgrade pip
+
+COPY src /k8s_python_demo_code/src
+RUN pip install   -r /k8s_python_demo_code/src/requirements.txt   
+#
+RUN cd /k8s_python_demo_code/src 
+EXPOSE 5000
+CMD  /k8s_python_demo_code/src/init_cmd.sh 
+#CMD ["echo", "'192.168.0.168 mytaos' >> /etc/hosts "]
+#CMD  python  DataProcess.py  & sleep infinity 
+#RUN python DataProcess.py
+#RUN tar zxvf /tmp/TDengine-client-2.4.0.4-Linux-x64.tar.gz  
+#RUN cd TDengine-client-2.4.0.4-Linux-x64
+#RUN install_client.sh
+#RUN echo "192.168.0.168 mytest" >> /etc/hosts
+#caijie73/k8s_python_data_process

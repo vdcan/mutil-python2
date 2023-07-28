@@ -1,0 +1,452 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>jQuery DataTables Plugin | YogiHosting Demo</title>
+    <meta charset="utf-8" />
+
+    <script src="/js/jquery.min.js"></script>
+     
+         
+           
+    <link rel="stylesheet" type="text/css" href="/css/tabs.css" />
+           
+    <link rel="stylesheet" type="text/css" href="/css/tabstyles.css" />
+
+
+    <script src="/js/MyUtility.js"></script>
+    <script src="/js/jquery.dataTables.min.js"></script>
+    <link href="/css/jquery.dataTables.min.css" rel="stylesheet">
+    </script>
+    <style>
+
+        .dataTables_length{display: none;}
+      .dataTables_filter{display: none;}
+      .dataTables_paginate {display: none;}
+      .dataTables_info {display: none;}
+      </style>
+    <script type="text/javascript" src="/js/mxClient.min.js"></script>
+
+    <style>
+        P {
+            padding: 0;
+        }
+
+        body {
+            background: #e7ecea;
+            color: #74777b;
+            font-weight: 400;
+            font-size: 1em;
+            font-family: 'Raleway', Arial, sans-serif;
+        }
+
+        .dataTables_length {
+            display: none;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        .dataTables_paginate {
+            display: none;
+        }
+
+        .dataTables_info {
+            display: none;
+        }
+
+        #content {
+            width: 50%;
+            float: left;
+            display: block;
+            overflow: auto;
+        }
+
+        #history {
+            width: 50%;
+            float: left;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <svg class="hidden">
+        <defs>
+            <path id="tabshape" d="M80,60C34,53.5,64.417,0,0,0v60H80z" />
+        </defs>
+    </svg>
+    <div class="container">
+        <div id="content" style="overflow:scroll; height:900px;">
+
+    <h1>AddressAliasID </h1><input type="text" id="AliasID" value="20220422123515945336" />
+    <button onclick="queryAddress()">Query</button>
+            <table id="tableCurrent" style="width: 100%; height: 50%;">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ASSOCIATION</th>
+
+                        <th>From Resource</th>
+
+                        <th>To Resource</th>
+                        <th>To Place</th>
+                        <th>Network</th>
+
+                    </tr>
+
+                </thead>
+
+            </table>
+            <table id="tableView" style="width: 100%; height: 50%">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ASSOCIATION</th>
+
+                        <th>From Resource</th>
+
+                        <th>To Resource</th>
+                        <th>To Place</th>
+                        <th>Network</th>
+
+                    </tr>
+
+                </thead>
+
+            </table>
+        </div>
+
+        <div id="history">
+            <div class="tabs tabs-style-shape">
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="#section-shape-1">
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <span>History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#section-shape-2">
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <svg viewBox="0 0 80 60" preserveAspectRatio="none">
+                                    <use xlink:href="#tabshape"></use>
+                                </svg>
+                                <span>Graph</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+                <div class="content-wrap">
+                    <section id="section-shape-1">
+                        <p>
+                            <table id="tableHistory">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Type</th>
+                                        <th>DN</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </p>
+                    </section>
+                    <section id="section-shape-2">
+                        <p>
+                            <div id="graphContainer" style="position:absolute;overflow:auto;top:36px;bottom:0px;left:0px;right:0px;border-top:gray 1px solid;">
+                            </div>
+                        </p>
+                    </section>
+                </div><!-- /content -->
+            </div><!-- /tabs -->
+
+        </div>
+    </div>
+
+    <!--Reference to jQuery-->
+
+    <script>
+
+
+
+        function cleanData(d) {
+            d = d + "";
+            d = d.replaceAll("null", "");
+            return d;
+        }
+        function queryAddress() {
+            var aid = $("#AliasID").val();
+            queryData("tableHistory","/test?aid=" + aid);
+        }
+        var table = {};
+        function queryData(tableID,url) { 
+            console.log(tableID, url);
+            table[tableID].ajax.url(url).load();
+        }
+        function getGoTableID(tableID){
+           // var p = me.parent()
+           // console.log(p);
+           // var tableID= p.className().trim();
+            if(tableID=="tableCurrent"){
+                return "tableView";
+            }else
+                return "tableCurrent";
+        }
+        function initTable(tableID,url) {
+            /*AJAX Response Binding*/
+
+            table[tableID] = $('#'+tableID).DataTable({
+              
+                ajax: {
+
+                    url: url,
+
+                    dataSrc: "message"
+
+                },
+
+                columns: [
+
+                    {
+                        data: 'add_on', render: function (data, type, row) {
+                            //var t = cleanData(row.ASSOCIATIONPATTERN_ID) + '<br/>' +  cleanData(row.A_DN);
+ 
+                            return data.replaceAll("<br/>", "").trim() ;
+
+                        }
+                    }/*,
+
+                    {  className: tableID,
+                        data: 'FROM_TYPE', render: function (data, type, row) {
+                            var t = cleanData(row.R_DN) + "<br/>" + cleanData(row.RESOURCE_UNIQUEID) + "<br/>" + cleanData(row.R_NAME) + "<br/>" + cleanData(row.R_PREFIX) + "<br/>" + cleanData(row.FROM_TYPE);
+                            if (t.replaceAll("<br/>", "").trim() == "") {
+                                return "";
+                            } else {
+
+                                return "<a href='javascript:queryData(getGoTableID(\""+tableID+"\"), \"/queryr?ft=f&prid=" + row.PHYSICALRESOURCE_UNIQUEID + "&lrid=" + row.LOGICALRESOURCE_UNIQUEID + "\")'>" + t + "</a>";
+                            }
+
+                        }
+
+                    },
+                    {  className: tableID,
+                        data: 'FROM_TYPE', render: function (data, type, row) {
+
+                            var t = cleanData(row.TO_R_DN) + "<br/>" + cleanData(row.TO_RESOURCE_UNIQUEID) + "<br/>" + cleanData(row.TO_R_NAME) + "<br/>" + cleanData(row.TO_R_PREFIX) + "<br/>" + cleanData(row.TO_TYPE);
+
+                            if (t.replaceAll("<br/>", "").trim() == "") {
+                                return "";
+                            } else {
+
+                                return "<a href='javascript:queryData(getGoTableID(\""+tableID+"\"),  \"/queryr?ft=t&prid=" + row.TO_PHYSICALRESOURCE_UNIQUEID + "&lrid=" + row.TO_LOGICALRESOURCE_UNIQUEID + "\")'>" + t + "</a>";
+                            }
+                        }
+
+                    },
+
+                    {  className: tableID,
+                        data: 'A_DN', render: function (data, type, row) {
+                            var t = cleanData(row.TO_P_DN);
+
+                            if (t.replaceAll("<br/>", "").trim() == "") {
+                                return "";
+                            } else {
+
+                                return "<a href='javascript:queryData(getGoTableID(\""+tableID+"\"),  \"/queryp?ft=t&pid=" + row.TO_PLACE_UNIQUEID + "\")'>" + t + "</a>";
+                            }
+
+                        }
+                    },
+                    {  className: tableID,
+                        data: 'FROM_TYPE', render: function (data, type, row) {
+
+
+                            var t = cleanData(row.N_DN);
+
+                            if (t.replaceAll("<br/>", "").trim() == "") {
+                                return "";
+                            } else {
+
+                                return "<a href='javascript:queryData(getGoTableID(\""+tableID+"\"), \"/queryn?ft=t&nid=" + row.NETWORK_UNIQUEID + "\")'>" + t + "</a>";
+                            }
+
+                        }
+
+                    }*/
+
+                ],
+
+                "pageLength": 100
+
+            });
+        }
+        var gHistoryData=[ {
+      "id": 1,
+      "room": "Basic",
+      "price": "$49"
+        }];
+        $(function () {
+       //     initTable('tableCurrent','/test');
+       //  initTable('tableView','/test');
+           initTable('#tableHistory','/test');
+/*  table["tableHistory"] = $('#tableHistory').DataTable({
+                    data: gHistoryData,
+              
+                columns: [
+                    { data: 'id' },
+                    { data: 'room' },
+                    {
+                        data: 'price', render: function (data, type, row) {
+                            return data + 'test';
+                        }
+                    }
+                ],
+                "pageLength": 3
+            }); 
+         
+
+*/
+
+        });
+
+       
+
+         
+    </script>
+
+    <script src="/js/cbpFWTabs.js"></script>
+    <script>
+        var glayout = {};
+        var gorganic = {};
+        var ggraph = {};
+        var gparent = {};
+        (function () {
+
+            [].slice.call(document.querySelectorAll('.tabs')).forEach(function (el) {
+                var t = new CBPFWTabs(el, { start: 2 });
+                t.current = 1;
+                t._show();
+            });
+            main(document.getElementById('graphContainer'))
+        })();
+
+
+        // Program starts here. Creates a sample graph in the
+        // DOM node with the specified ID. This function is invoked
+        // from the onLoad event handler of the document (see below). 
+        function testDraw() {
+
+            gorganic.execute(gparent);
+        }
+        function main(container) {
+            // Checks if browser is supported
+            if (!mxClient.isBrowserSupported()) {
+                // Displays an error message if the browser is
+                // not supported.
+                mxUtils.error('Browser is not supported!', 200, false);
+            }
+            else {
+                // Creates the graph inside the given container
+                ggraph = new mxGraph(container);
+
+                // Adds rubberband selection
+                new mxRubberband(ggraph);
+
+                // Changes the default vertex style in-place
+                var style = ggraph.getStylesheet().getDefaultVertexStyle();
+                style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+                style[mxConstants.STYLE_GRADIENTCOLOR] = 'white';
+                style[mxConstants.STYLE_PERIMETER_SPACING] = 6;
+                style[mxConstants.STYLE_ROUNDED] = true;
+                style[mxConstants.STYLE_SHADOW] = true;
+
+                style = ggraph.getStylesheet().getDefaultEdgeStyle();
+                style[mxConstants.STYLE_ROUNDED] = true;
+
+                // Creates a layout algorithm to be used
+                // with the graph
+                glayout = new mxHierarchicalLayout(ggraph);
+                gorganic = new mxFastOrganicLayout(ggraph);
+                gorganic.forceConstant = 120;
+
+                gparent = ggraph.getDefaultParent();
+
+                // Adds a button to execute the layout
+                var button = document.createElement('button');
+                mxUtils.write(button, 'Hierarchical');
+                mxEvent.addListener(button, 'click', function (evt) {
+                    layout.execute(gparent);
+                });
+                //document.body.appendChild(button);
+
+                // Adds a button to execute the layout
+                var button = document.createElement('button');
+                mxUtils.write(button, 'Organic');
+
+                mxEvent.addListener(button, 'click', function (evt) {
+                    gorganic.execute(gparent);
+                });
+
+                // document.body.appendChild(button);
+
+                // Load cells and layouts the graph
+                ggraph.getModel().beginUpdate();
+                try {
+                    var v1 = ggraph.insertVertex(gparent, null, '1', 0, 0, 80, 30);
+                    var v2 = ggraph.insertVertex(gparent, null, '2', 0, 0, 80, 30);
+                    var v3 = ggraph.insertVertex(gparent, null, '3', 0, 0, 80, 30);
+                    var v4 = ggraph.insertVertex(gparent, null, '4', 0, 0, 80, 30);
+                    var v5 = ggraph.insertVertex(gparent, null, '5', 0, 0, 80, 30);
+                    var v6 = ggraph.insertVertex(gparent, null, '6', 0, 0, 80, 30);
+                    var v7 = ggraph.insertVertex(gparent, null, '7', 0, 0, 80, 30);
+                    var v8 = ggraph.insertVertex(gparent, null, '8', 0, 0, 80, 30);
+                    var v9 = ggraph.insertVertex(gparent, null, '9', 0, 0, 80, 30);
+
+                    var e1 = ggraph.insertEdge(gparent, null, '', v1, v2);
+                    var e2 = ggraph.insertEdge(gparent, null, '', v1, v3);
+                    var e3 = ggraph.insertEdge(gparent, null, '', v3, v4);
+                    var e4 = ggraph.insertEdge(gparent, null, '', v2, v5);
+                    var e5 = ggraph.insertEdge(gparent, null, '', v1, v6);
+                    var e6 = ggraph.insertEdge(gparent, null, '', v2, v3);
+                    var e7 = ggraph.insertEdge(gparent, null, '', v6, v4);
+                    var e8 = ggraph.insertEdge(gparent, null, '', v6, v1);
+                    var e9 = ggraph.insertEdge(gparent, null, '', v6, v7);
+                    var e10 = ggraph.insertEdge(gparent, null, '', v7, v8);
+                    var e11 = ggraph.insertEdge(gparent, null, '', v7, v9);
+                    var e12 = ggraph.insertEdge(gparent, null, '', v7, v6);
+                    var e13 = ggraph.insertEdge(gparent, null, '', v7, v5);
+
+                    // Executes the layout
+                    glayout.execute(gparent);
+                }
+                finally {
+                    // Updates the display
+                    ggraph.getModel().endUpdate();
+                }
+
+                if (mxClient.IS_QUIRKS) {
+                    document.body.style.overflow = 'hidden';
+                    new mxDivResizer(container);
+                }
+            }
+        }; 
+    </script>
+</body>
+
+</html>
