@@ -14,6 +14,6 @@ RUN chmod +x /opt/app/install_client.sh
 RUN /opt/app/install_client.sh
 #ADD main.py .
 #RUN pip install requests beautifulsoup4 python-dotenv
-CMD ["python", "./DataProcess.py"] 
+CMD ["python", "./main.py"] 
 # Or enter the name of your unique directory and parameter set.
 #CMD ["python", "./main.py"] 

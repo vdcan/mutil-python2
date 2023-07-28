@@ -5,7 +5,7 @@ from pypipeline.core.Exchange import Exchange
 from pypipeline.core.Message import Message
  
 import paho.mqtt.client as mqtt
-
+import json
  
 
 class MQTTIn(Source):
@@ -41,8 +41,8 @@ class MQThread(threading.Thread):
             exchange = Exchange()
         if(topic != ""):
             message = Message()
-            message.body = "This is exchange " + ms
-            exchange.in_msg = message
+            message.body = {"topic": topic, "message":json.loads(ms)   }
+            exchange.in_msg =  message
             self.source.chain.process(exchange)
 
 

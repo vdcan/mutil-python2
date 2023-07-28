@@ -1,7 +1,18 @@
 import time
+import unittest 
+ 
+from MQTTPipeline import MQTTPipeline
 
-print("Printed immediately.")
+import signal
+import sys
 
-while 1:
-    time.sleep(2.4)
-    print("Printed after 2.4 seconds.")
+import os
+
+def sigint_handler(signal, frame):
+    print( 'Interrupted')
+    #sys.exit()
+    os._exit(1)
+signal.signal(signal.SIGINT, sigint_handler)
+print("MQTest")
+t = MQTTPipeline ();
+t.test_simple_pipeline(); 

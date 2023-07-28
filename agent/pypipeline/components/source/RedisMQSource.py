@@ -7,7 +7,9 @@ from pypipeline.core.Message import Message
 import redis
 
 # Connect to Redis server
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+import my_config;
+redis_client = redis.Redis(
+    host=my_config.config["redis_host"], port=my_config.config["redis_port"])
 
 class MQIn(Source):
     def __init__(self, plumber, params):
