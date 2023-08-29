@@ -17,8 +17,13 @@ config={
 
 #"mqtt_host":"iot_mqtt_agent",
 "mqtt_host":"mqttagent.polltek.com",
-"mqtts_user":"root",
+"mqtt_user":"caijie2",
 "mqtt_pwd":"taosdata",
+"mqtt2":{        
+    "mqtt_host":"mqttagent.polltek.com",
+    "mqtt_user":"caijie2",
+    "mqtt_pwd":"taosdata",
+    },
 
 
 "mysql_host":"jssqlmysql",

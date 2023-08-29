@@ -2,6 +2,7 @@ from pypipeline.core.Destination import Destination
 
 import paho.mqtt.client as mqtt
 
+import my_config
 
 mqttc = mqtt.Client()
 
@@ -20,7 +21,7 @@ class MQTTOut(Destination):
     def __init__(self, plumber, params):
         super().__init__(plumber, params)
         self.topic = params["topic"]
-        mqttc.connect('mqttagent.polltek.com', 1883, 60)
+        mqttc.connect(my_config.config["mqtt_host"], 1883, 60)
 
     def process(self, exchange):
         #print("\nLog: " + self.channel + "\n" + str(exchange) + "\n")

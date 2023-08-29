@@ -6,6 +6,7 @@ from pypipeline.core.Message import Message
  
 import paho.mqtt.client as mqtt
 import json
+import my_config
  
 
 class MQTTIn(Source):
@@ -32,7 +33,7 @@ class MQThread(threading.Thread):
         ms = ms.replace("'", "\"")
         ms = ms.replace(",,", ",")
         topic = m
-        #print(m,ms)
+        print(m,ms)
         #topic, msg = convertData(m, ms)
         #logging.debug(topic, msg);
         if self.plumber is not None:
@@ -42,6 +43,7 @@ class MQThread(threading.Thread):
         if(topic != ""):
             message = Message()
             message.body = {"topic": topic, "message":json.loads(ms)   }
+            #print(message)
             exchange.in_msg =  message
             self.source.chain.process(exchange)
 
@@ -73,8 +75,13 @@ class MQThread(threading.Thread):
         #print(f"Received message: {message['data'].decode()}")
  
     def run(self):
-        self.mqttc.connect('mqttagent.polltek.com', 1883, 60)  
-        self.mqttc.subscribe(self.topic , 0)
+        print("MQTTIn:",my_config.config["mqtt_host"] )
+        #flag = self.mqttc.connect(my_config.config["mqtt_host"], 1883, 160)  
+        #flag = self.mqttc.connect(my_config.config["mqtt_host"] , 1883, 60)  
+        
+        flag = self.mqttc.connect("35.220.135.133", 1883, 60)  
         print("self.topic", self.topic)
+        flag2= self.mqttc.subscribe(self.topic , 1)
+        print("run  topic", self.topic, flag,flag2)
         
         self.mqttc.loop_forever()
